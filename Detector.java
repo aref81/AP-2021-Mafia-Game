@@ -1,6 +1,8 @@
 package com.company;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 public class Detector extends CitizenRole{
@@ -13,20 +15,13 @@ public class Detector extends CitizenRole{
     @Override
     public void run() {
         super.run();
-        while (!clientsHandler.isGameState()){
-            try {
-                Thread.sleep(10000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        try {
-            output.writeObject("The Game Starts Now!\n");
-            output.writeObject(Roles.DETECTORE);
+        ObjectOutputStream output = super.getOutput();
+        ObjectInputStream input = super.getInput();
 
+        try {
+            output.writeObject("0\n YOU ARE DETECTOR!\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 }

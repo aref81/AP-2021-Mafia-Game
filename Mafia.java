@@ -12,18 +12,11 @@ public class Mafia extends MafiaRole{
     @Override
     public void run() {
         super.run();
-        while (!clientsHandler.isGameState()){
-            try {
-                Thread.sleep(10000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+        ObjectOutputStream output = super.getOutput();
+        ObjectInputStream input = super.getInput();
+
         try {
-            output.writeObject("The Game Starts Now!\n");
-            output.writeObject(Roles.MAFIA);
-
-
+            output.writeObject("0\n YOU ARE MAFIA!\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
