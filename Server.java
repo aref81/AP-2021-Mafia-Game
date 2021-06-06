@@ -3,6 +3,7 @@ package com.company;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.rmi.server.ServerNotActiveException;
 import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
@@ -14,8 +15,8 @@ public class Server {
         ServerSocket socket = new ServerSocket(8585);
         ClientsHandler clients = new ClientsHandler(10);
 
-        for (Roles roleName : clients.getRolesNames() ){
-            Socket client  = socket.accept();
+        for (Roles roleName : clients.getRolesNames() ) {
+            Socket client = socket.accept();
             clients.add(client);
         }
     }

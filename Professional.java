@@ -7,8 +7,8 @@ import java.net.Socket;
 
 public class Professional extends CitizenRole{
 
-    public Professional(Socket socket,ClientsHandler clientsHandler) throws IOException, ClassNotFoundException {
-        super(socket,clientsHandler);
+    public Professional(Socket socket,ClientsHandler clientsHandler,Roles role) {
+        super(socket,clientsHandler,role);
     }
 
     @Override
@@ -19,7 +19,11 @@ public class Professional extends CitizenRole{
 
         try {
             output.writeObject("0\n YOU ARE PROFESSIONAL!\n");
-        } catch (IOException e) {
+            super.getGod().firstNight(this);
+            synchronized (Thread.currentThread()) {
+                Thread.currentThread().wait();
+            }
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }

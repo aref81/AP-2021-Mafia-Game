@@ -7,9 +7,8 @@ import java.net.Socket;
 
 public class Doctor extends CitizenRole{
 
-    public Doctor(Socket socket,ClientsHandler clientsHandler) throws IOException, ClassNotFoundException {
-        super(socket,clientsHandler);
-
+    public Doctor(Socket socket,ClientsHandler clientsHandler,Roles role) {
+        super(socket,clientsHandler,role);
     }
 
     @Override
@@ -20,7 +19,11 @@ public class Doctor extends CitizenRole{
 
         try {
             output.writeObject("0\n YOU ARE DOCTOR!\n");
-        } catch (IOException e) {
+            super.getGod().firstNight(this);
+            synchronized (Thread.currentThread()) {
+                Thread.currentThread().wait();
+            }
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }

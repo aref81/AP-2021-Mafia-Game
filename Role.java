@@ -6,15 +6,18 @@ import java.net.Socket;
 public abstract class Role implements Runnable {
     private boolean alive;
     private String name;
+    private Roles role;
     private Socket socket;
     private ObjectOutputStream output;
     private ObjectInputStream input;
     private ClientsHandler clientsHandler;
+    private God god;
 
-    public Role (Socket socket,ClientsHandler clientsHandler) {
+    public Role (Socket socket,ClientsHandler clientsHandler,Roles role) {
         alive = false;
         this.socket = socket;
         this.clientsHandler = clientsHandler;
+        this.role = role;
     }
 
     public String getName() {
@@ -27,36 +30,48 @@ public abstract class Role implements Runnable {
             output = new ObjectOutputStream(socket.getOutputStream());
             input = new ObjectInputStream(socket.getInputStream());
 
-            boolean loop;
-            do{
-                output.writeObject("1Please choose a user name:\n");
-                String tmpName = (String) input.readObject();
-                loop = clientsHandler.checkName(tmpName);
+            boolean loop = true;
+            do {
+                try {
+                    output.writeObject("1Please choose a user name:\n");
+                    String tmpName = (String) input.readObject();
+                    loop = clientsHandler.checkName(tmpName);
 
-                if (!(loop)){
-                    name = tmpName;
-                    output.writeObject("0" + name + " successfully set as your name!\n");
-                }
-                else {
-                    output.writeObject("0Sorry\nName already exists!\nplease try again\n");
-                }
-            }while (loop);
+                    if (!(loop)) {
+                        name = tmpName;
+                        output.writeObject("0" + name + " successfully set as your name!\n");
+                    } else {
+                        throw new NameExistException(tmpName);
+                    }
+            }
+            catch(NameExistException e){
+                output.writeObject(e.toString());
+            }
+        } while (loop) ;
 
             loop = true;
-            while (loop) {
-                output.writeObject("1Type \"ready\" whenever you are ready to play or \"exit\" to exit the game :\n");
-                String tmpStr = (String) input.readObject();
-                if (tmpStr.equals("ready")){
-                    alive = true;
-                    loop = false;
+                while (loop) {
+                    try {
+//                output.writeObject("1Type \"ready\" whenever you are ready to play or \"exit\" to exit the game :\n");
+                        output.writeObject("1Type \"ready\" whenever you are ready to play :\n");
+                        String tmpStr = (String) input.readObject();
+                        if (tmpStr.equals("ready")) {
+                            alive = true;
+                            loop = false;
+                        }
+//                else if(tmpStr.equals("exit")){
+//                    clientsHandler.remove(this);
+//                    output.writeObject("exit");
+//                    socket.close();
+//                    return;
+//                }
+                        else {
+                            throw new IOException();
+                        }
+                    } catch (IOException e) {
+                        output.writeObject("2Invalid input!\nPlease  try again\n");
+                    }
                 }
-                else if(tmpStr.equals("exit")){
-                    clientsHandler.remove(this);
-                    output.writeObject("exit");
-                    socket.close();
-                    return;
-                }
-            }
 
             output.writeObject("0Please wait until game starts");
 
@@ -69,7 +84,7 @@ public abstract class Role implements Runnable {
                     output.writeObject("0\rPlease wait until game starts" + ((i%3 == 0)?".":((i%3 == 1)?"..":"...")));
                 }
                 else {
-                    output.writeObject("0\nGame Starts now!\n");
+                    output.writeObject("0\rGame Starts now!\n");
                 }
 
                 i %=999;
@@ -94,4 +109,15 @@ public abstract class Role implements Runnable {
         return input;
     }
 
+    public Roles getRole() {
+        return role;
+    }
+
+    public void setGod(God god) {
+        this.god = god;
+    }
+
+    public God getGod() {
+        return god;
+    }
 }

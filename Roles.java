@@ -10,7 +10,7 @@ public enum Roles {
 
     public static CopyOnWriteArrayList<Roles> randomize(int num){
         CopyOnWriteArrayList<Roles> roles = new CopyOnWriteArrayList<Roles>();
-        int mafia = (num - 8)/3;
+        int mafia = (num - 6)/3;
         int citizen = num - 8 - mafia;
 
         roles.add(GODFATHER);

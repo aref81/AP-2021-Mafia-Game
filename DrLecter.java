@@ -7,9 +7,8 @@ import java.net.Socket;
 
 public class DrLecter extends MafiaRole{
 
-    public DrLecter(Socket socket,ClientsHandler clientsHandler) throws IOException, ClassNotFoundException {
-        super(socket,clientsHandler);
-
+    public DrLecter(Socket socket,ClientsHandler clientsHandler,Roles role) {
+        super(socket,clientsHandler,role);
     }
 
     @Override
@@ -20,7 +19,11 @@ public class DrLecter extends MafiaRole{
 
         try {
             output.writeObject("0\n YOU ARE DR.LECTER!\n");
-        } catch (IOException e) {
+            super.getGod().firstNight(this);
+            synchronized (Thread.currentThread()) {
+                Thread.currentThread().wait();
+            }
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }

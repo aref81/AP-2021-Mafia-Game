@@ -7,8 +7,8 @@ import java.net.Socket;
 
 public class Mayor extends CitizenRole{
 
-    public Mayor(Socket socket,ClientsHandler clientsHandler) throws IOException, ClassNotFoundException {
-        super(socket,clientsHandler);
+    public Mayor(Socket socket,ClientsHandler clientsHandler,Roles role) {
+        super(socket,clientsHandler,role);
 
     }
 
@@ -20,7 +20,11 @@ public class Mayor extends CitizenRole{
 
         try {
             output.writeObject("0\n YOU ARE MAYOR!\n");
-        } catch (IOException e) {
+            super.getGod().firstNight(this);
+            synchronized (Thread.currentThread()) {
+                Thread.currentThread().wait();
+            }
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }

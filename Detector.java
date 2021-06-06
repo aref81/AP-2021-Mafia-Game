@@ -7,9 +7,8 @@ import java.net.Socket;
 
 public class Detector extends CitizenRole{
 
-    public Detector(Socket socket,ClientsHandler clientsHandler) throws IOException, ClassNotFoundException {
-        super(socket,clientsHandler);
-
+    public Detector(Socket socket,ClientsHandler clientsHandler,Roles role){
+        super(socket,clientsHandler,role);
     }
 
     @Override
@@ -20,7 +19,11 @@ public class Detector extends CitizenRole{
 
         try {
             output.writeObject("0\n YOU ARE DETECTOR!\n");
-        } catch (IOException e) {
+            super.getGod().firstNight(this);
+            synchronized (Thread.currentThread()) {
+                Thread.currentThread().wait();
+            }
+        } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
     }

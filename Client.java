@@ -47,9 +47,15 @@ public class Client {
             if (command.equals("exit")){
                 break;
             }
-            System.out.print(command.substring(1));
-            if (command.charAt(0) == '1') {
+            if (command.charAt(0) == '0'){
+                System.out.print(command.substring(1));
+            }
+            else if (command.charAt(0) == '1') {
+                System.out.print(command.substring(1));
                 output.writeObject(scanner.nextLine());
+            }
+            else if (command.charAt(0) == '2'){
+                System.err.println(command.substring(1));
             }
         }
         socket.close();
