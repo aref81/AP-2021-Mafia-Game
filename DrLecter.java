@@ -19,11 +19,8 @@ public class DrLecter extends MafiaRole{
 
         try {
             output.writeObject("0\n YOU ARE DR.LECTER!\n");
-            super.getGod().firstNight(this);
-            synchronized (Thread.currentThread()) {
-                Thread.currentThread().wait();
-            }
-        } catch (IOException | InterruptedException e) {
+            setReady(true);
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

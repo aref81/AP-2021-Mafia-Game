@@ -19,11 +19,8 @@ public class Psychologist extends CitizenRole{
 
         try {
             output.writeObject("0\n YOU ARE PSYCHOLOGIST!\n");
-            super.getGod().firstNight(this);
-            synchronized (Thread.currentThread()) {
-                Thread.currentThread().wait();
-            }
-        } catch (IOException | InterruptedException e) {
+            setReady(true);
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

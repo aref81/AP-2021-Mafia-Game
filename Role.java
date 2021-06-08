@@ -2,6 +2,8 @@ package com.company;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public abstract class Role implements Runnable {
     private boolean alive;
@@ -11,13 +13,14 @@ public abstract class Role implements Runnable {
     private ObjectOutputStream output;
     private ObjectInputStream input;
     private ClientsHandler clientsHandler;
-    private God god;
+    private boolean ready;
 
     public Role (Socket socket,ClientsHandler clientsHandler,Roles role) {
         alive = false;
         this.socket = socket;
         this.clientsHandler = clientsHandler;
         this.role = role;
+        ready = false;
     }
 
     public String getName() {
@@ -113,11 +116,15 @@ public abstract class Role implements Runnable {
         return role;
     }
 
-    public void setGod(God god) {
-        this.god = god;
+    public boolean isReady() {
+        return ready;
     }
 
-    public God getGod() {
-        return god;
+    protected void setReady(boolean ready) {
+        this.ready = ready;
+    }
+
+    public ChatUser chatUserMaker(ChatServer server){
+        return new ChatUser(server,input,output,name);
     }
 }

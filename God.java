@@ -2,8 +2,11 @@ package com.company;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-public class God {
+public class God implements Runnable{
+    private ArrayList<Role> roles;
     private ArrayList<Role> mafias;
     private ArrayList<Role> citizens;
     private Role godFather;
@@ -17,8 +20,10 @@ public class God {
     private ArrayList<Role> normalMafias;
     private ArrayList<Role> normalCitizens;
     private boolean day;
+    private Boolean timer;
 
     public God(ArrayList<Role> roles) {
+        this.roles = roles;
         mafias = new ArrayList<>(2);
         normalMafias = new ArrayList<>();
 
@@ -54,25 +59,69 @@ public class God {
         }
 
         day = false;
+        timer = false;
     }
 
-    public void firstNight (Role role) throws IOException, InterruptedException {
-        if (role instanceof MafiaRole) {
-            role.getOutput().writeObject("0\nFirst Night Begins!\nMAFIA group Wakes Up\n\nMAFIA members :\n");
+    @Override
+    public void run (){
+        try {
+            firstNight();
+            gameLoop();
+        }
+        catch (InterruptedException | IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    private void firstNight () throws InterruptedException, IOException {
+        boolean start = false;
+        while (!start){
+            for (Role role : roles) {
+                System.err.print("");
+                start = role.isReady();
+                if (!start) {
+                    break;
+                }
+            }
+        }
+
+
+        for (Role role : roles){
+            role.getOutput().writeObject("0\nFirst Night Begins!\n");
+        }
+        for (Role role : mafias) {
+            role.getOutput().writeObject("0\nMAFIA group Wakes Up\n\nMAFIA members :\n");
             for (int i = 1; i <= mafias.size(); i++) {
+                Thread.sleep(10);
                 role.getOutput().writeObject("0" + i + "- " + mafias.get(i - 1).getRole() + " ---> " + mafias.get(i - 1).getName() + (mafias.get(i - 1) == role ? " (You)\n" : "\n"));
             }
+            Thread.sleep(10);
             role.getOutput().writeObject("0\n\nMafia Group Sleeps.\n\n");
         }
-        if (role instanceof CitizenRole) {
-            role.getOutput().writeObject("0\nFirst Night Begins!\n");
+        for (Role role : citizens) {
             if (role.getRole() == Roles.MAYOR) {
                 Thread.sleep(50);
                 role.getOutput().writeObject("0\nMayor Wakes Up\n" + doctor.getRole() + " ---> " + doctor.getName() + "\n");
             } else if (role.getRole() == Roles.DOCTOR) {
+                Thread.sleep(50);
                 role.getOutput().writeObject("0\nDoctor Wakes Up\n" + mayor.getRole() + " ---> " + mayor.getName() + "\n");
             }
         }
-        role.getOutput().writeObject("0Night Finishes.\n\n");
+        for (Role role : roles) {
+            role.getOutput().writeObject("0Night Finishes.\n\n");
+            role.setReady(false);
+        }
+        day = true;
+    }
+
+    public synchronized void gameLoop () throws IOException {
+        ExecutorService pool = Executors.newCachedThreadPool();
+        for (Role role : roles){
+
+        }
+    }
+
+    public Boolean getTimer() {
+        return timer;
     }
 }

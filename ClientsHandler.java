@@ -1,6 +1,4 @@
 package com.company;
-
-import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -54,7 +52,7 @@ public class ClientsHandler {
         return gameState;
     }
 
-    public void add(Socket client) throws IOException, ClassNotFoundException {
+    public void add(Socket client) {
         Roles roleName = rolesNames.get(0);
         rolesNames.remove(roleName);
         switch (roleName){
@@ -112,8 +110,6 @@ public class ClientsHandler {
 
     private void startGame (){
         God god = new God(roles);
-        for (Role role : roles){
-            role.setGod(god);
-        }
+        pool.execute(god);
     }
 }

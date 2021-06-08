@@ -11,13 +11,22 @@ import java.util.concurrent.Executors;
 
 public class Server {
 
-    public static void main(String[] args) throws IOException, ClassNotFoundException {
+    public static void main(String[] args) throws IOException, InterruptedException {
         ServerSocket socket = new ServerSocket(8585);
         ClientsHandler clients = new ClientsHandler(10);
 
         for (Roles roleName : clients.getRolesNames() ) {
             Socket client = socket.accept();
             clients.add(client);
+        }
+        Thread.sleep(60*1000);
+        if (clients.getGameState()){
+            while (clients.getGameState()) {
+                Thread.sleep(1000 * 60);
+            }
+        }
+        else {
+            System.err.println("Game didn't start after 60 secs\n\nServer is Shutting Down!");
         }
     }
 }
