@@ -115,10 +115,8 @@ public class God implements Runnable{
     }
 
     public synchronized void gameLoop () throws IOException {
-        ExecutorService pool = Executors.newCachedThreadPool();
-        for (Role role : roles){
-
-        }
+        ChatServer chatServer = new ChatServer(roles);
+        chatServer.startChat();
     }
 
     public Boolean getTimer() {
