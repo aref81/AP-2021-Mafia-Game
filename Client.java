@@ -2,8 +2,6 @@ package com.company;
 
 import java.io.*;
 import java.net.Socket;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -79,6 +77,14 @@ public class Client {
         WriterThread writerThread = new WriterThread(output,scanner,readerThread);
         pool.execute(readerThread);
         pool.execute(writerThread);
+        while (!readerThread.isEnded()){
+            try {
+                Thread.sleep(1000);
+            }
+            catch (InterruptedException e){
+                e.printStackTrace();
+            }
+        }
     }
 }
 
@@ -92,12 +98,13 @@ class ReaderThread implements Runnable{
     }
 
     @Override
-    public synchronized void run() {
+    public void run() {
         try {
             String message = (String) input.readObject();
 
             while (!(message.equals("exitchatMode"))){
                 System.out.println(message);
+                message = (String) input.readObject();
             }
 
             System.out.println("Chat time is over!\n");
@@ -124,7 +131,7 @@ class WriterThread implements Runnable{
     }
 
     @Override
-    public synchronized void run() {
+    public void run() {
         while (!readerThread.isEnded()){
             String message = scanner.nextLine();
             try {

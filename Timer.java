@@ -1,21 +1,18 @@
 package com.company;
 
-public class Timer implements Runnable{
+public class Timer {
     private int time;
-    private Boolean timer;
 
-    public Timer(int time,Boolean timer) {
+    public Timer(int time) {
         this.time = time;
-        this.timer = timer;
     }
 
-    @Override
-    public void run() {
+    public boolean start() {
         try {
             Thread.sleep(60 * 1000);
-            timer = false;
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        return true;
     }
 }

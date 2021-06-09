@@ -23,9 +23,12 @@ public class ChatServer {
         for (ChatUser chatUser : chatUsers){
             pool.execute(chatUser);
         }
+        Timer timer = new Timer(60);
+        deadline = timer.start();
+        pool.shutdown();
     }
 
-    public void sendToAll(ChatUser sender,String message) throws IOException {
+    public synchronized void sendToAll(ChatUser sender,String message) throws IOException {
         for (ChatUser chatUser : chatUsers){
             if (chatUser != sender){
                 chatUser.receiveMessage(message);
