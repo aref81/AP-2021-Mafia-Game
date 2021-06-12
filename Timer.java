@@ -9,7 +9,7 @@ public class Timer {
 
     public boolean start() {
         try {
-            Thread.sleep(60 * 1000);
+            Thread.sleep(time * 1000L);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

@@ -4,11 +4,14 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class Doctor extends CitizenRole{
+    private boolean isSaved;
 
     public Doctor(Socket socket,ClientsHandler clientsHandler,Roles role) {
         super(socket,clientsHandler,role);
+        isSaved = false;
     }
 
     @Override
@@ -23,5 +26,38 @@ public class Doctor extends CitizenRole{
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public Role save (ArrayList<Role> roles){
+        int index = -1;
+        while (index == -1) {
+            try {
+                String output = "1Choose someone to save :\n";
+                for (int i = 1; i <= roles.size(); i++) {
+                    output += i + "-" + roles.get(i - 1).getName() + "\n";
+                }
+                super.getOutput().writeObject(output);
+                String str = (String) super.getInput().readObject();
+                index = Integer.parseInt(str) - 1;
+                if (roles.get(index) == this && isSaved) {
+                    super.getOutput().writeObject("2You can't save yourself twice!\nPLease Choose another one\n");
+                    index = -1;
+                } else if (roles.get(index) == this && !isSaved) {
+                    isSaved = true;
+                    super.getOutput().writeObject("0You Saved yourself\nyou can't save yourself anymore!\n");
+                } else {
+                    super.getOutput().writeObject("0 you saved " + roles.get(index).getName() + "\n");
+                }
+            } catch (IOException | ClassNotFoundException e) {
+                try {
+                    super.getOutput().writeObject("2Wrong input!\ntry Again\n");
+                    index = -1;
+                }
+                catch (IOException er){
+                    er.printStackTrace();
+                }
+            }
+        }
+        return roles.get(index);
     }
 }

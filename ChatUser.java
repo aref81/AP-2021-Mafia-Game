@@ -9,12 +9,14 @@ public class ChatUser implements Runnable{
     private ObjectInputStream input;
     private ObjectOutputStream output;
     private String name;
+    private boolean ready;
 
     public ChatUser(ChatServer server, ObjectInputStream input, ObjectOutputStream output, String name) {
         this.server = server;
         this.input = input;
         this.output = output;
         this.name = name;
+        ready = false;
     }
 
     @Override
@@ -23,10 +25,12 @@ public class ChatUser implements Runnable{
             output.writeObject("chatMode");
             while (!server.isDeadline()){
                 String message = (String) input.readObject();
-                message = name + " : " + message;
-                server.sendToAll(this,message);
+                if (!message.equals("")) {
+                    message = name + " : " + message;
+                    server.sendToAll(this, message);
+                }
             }
-            output.writeObject("exitchatMode");
+            ready = true;
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -34,5 +38,9 @@ public class ChatUser implements Runnable{
 
     public void receiveMessage(String message) throws IOException {
         output.writeObject(message);
+    }
+
+    public boolean isReady() {
+        return ready;
     }
 }

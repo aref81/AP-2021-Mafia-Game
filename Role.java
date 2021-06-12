@@ -14,6 +14,7 @@ public abstract class Role implements Runnable {
     private ObjectInputStream input;
     private ClientsHandler clientsHandler;
     private boolean ready;
+    private boolean watcher;
 
     public Role (Socket socket,ClientsHandler clientsHandler,Roles role) {
         alive = false;
@@ -21,6 +22,7 @@ public abstract class Role implements Runnable {
         this.clientsHandler = clientsHandler;
         this.role = role;
         ready = false;
+        watcher = false;
     }
 
     public String getName() {
@@ -126,5 +128,26 @@ public abstract class Role implements Runnable {
 
     public ChatUser chatUserMaker(ChatServer server){
         return new ChatUser(server,input,output,name);
+    }
+
+    public void die(){
+        try {
+            alive = false;
+            output.writeObject("1Do you want to:\n(1) quit\nor\ncontinue watching the game?(you ar unable to talk to alive people)\n");
+            int choice = Integer.parseInt((String) input.readObject());
+            if (choice == 1) {
+                output.writeObject("exit");
+                socket.close();
+            } else {
+                watcher = true;
+            }
+        }
+        catch (IOException | ClassNotFoundException e){
+            e.printStackTrace();
+        }
+    }
+
+    public boolean isWatcher() {
+        return watcher;
     }
 }

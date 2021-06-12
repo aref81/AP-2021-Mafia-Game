@@ -23,9 +23,39 @@ public class ChatServer {
         for (ChatUser chatUser : chatUsers){
             pool.execute(chatUser);
         }
+        pool.shutdown();
         Timer timer = new Timer(60);
         deadline = timer.start();
-        pool.shutdown();
+        try {
+            sendToAll(null, "exitchatMode");
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+        boolean finished = false;
+        int i = 0;
+        try {
+            while (!finished){
+                Thread.sleep(1000);
+                for (ChatUser chatUser : chatUsers) {
+                    System.err.print("");
+                    finished = chatUser.isReady();
+                    if (!finished) {
+                        break;
+                    }
+                }
+                if (!finished){
+                    sendToAll(null,"0\rPlease wait until other players are ready to vote" + ((i%3 == 0)?".":((i%3 == 1)?"..":"...")));
+                }
+                else {
+                    sendToAll(null,"0\rHeading to vote!\n");
+                }
+                i%=999;
+                i++;
+            }
+        }
+        catch (IOException | InterruptedException e){
+            e.printStackTrace();
+        }
     }
 
     public synchronized void sendToAll(ChatUser sender,String message) throws IOException {

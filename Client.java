@@ -77,7 +77,7 @@ public class Client {
         WriterThread writerThread = new WriterThread(output,scanner,readerThread);
         pool.execute(readerThread);
         pool.execute(writerThread);
-        while (!readerThread.isEnded()){
+        while (!writerThread.isEnd()){
             try {
                 Thread.sleep(1000);
             }
@@ -107,7 +107,7 @@ class ReaderThread implements Runnable{
                 message = (String) input.readObject();
             }
 
-            System.out.println("Chat time is over!\n");
+            System.out.println("\rChat time is over!\nPlease press \"Enter\" to Continue\n");
             ended = true;
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
@@ -123,11 +123,13 @@ class WriterThread implements Runnable{
     private ObjectOutputStream output;
     private Scanner scanner;
     private ReaderThread readerThread;
+    private boolean end;
 
     public WriterThread(ObjectOutputStream output,Scanner scanner,ReaderThread readerThread) {
         this.output = output;
         this.scanner = scanner;
         this.readerThread = readerThread;
+        end = false;
     }
 
     @Override
@@ -140,5 +142,10 @@ class WriterThread implements Runnable{
                 e.printStackTrace();
             }
         }
+        end = true;
+    }
+
+    public boolean isEnd() {
+        return end;
     }
 }
