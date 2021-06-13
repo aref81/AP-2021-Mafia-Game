@@ -4,19 +4,17 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-public class ChatUser implements Runnable{
+public class ChatUser extends Thread{
     private ChatServer server;
     private ObjectInputStream input;
     private ObjectOutputStream output;
     private String name;
-    private boolean ready;
 
     public ChatUser(ChatServer server, ObjectInputStream input, ObjectOutputStream output, String name) {
         this.server = server;
         this.input = input;
         this.output = output;
         this.name = name;
-        ready = false;
     }
 
     @Override
@@ -30,7 +28,6 @@ public class ChatUser implements Runnable{
                     server.sendToAll(this, message);
                 }
             }
-            ready = true;
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -38,9 +35,5 @@ public class ChatUser implements Runnable{
 
     public void receiveMessage(String message) throws IOException {
         output.writeObject(message);
-    }
-
-    public boolean isReady() {
-        return ready;
     }
 }

@@ -6,9 +6,13 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 public class ToughLife extends CitizenRole{
+    private boolean hasGurd;
+    private int numberOfReqs;
 
     public ToughLife(Socket socket,ClientsHandler clientsHandler,Roles role) {
         super(socket,clientsHandler,role);
+        hasGurd = true;
+        numberOfReqs = 0;
     }
 
     @Override
@@ -23,5 +27,35 @@ public class ToughLife extends CitizenRole{
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public boolean deadRolesRequest (){
+        int choice = 0;
+        try {
+            super.getOutput().writeObject("1Do you want to request?\n1.yes 2.no\n");
+            choice = Integer.parseInt((String) super.getInput().readObject());
+        }
+        catch (IOException | ClassNotFoundException e){
+            e.printStackTrace();
+        }
+        if (choice == 1){
+            numberOfReqs++;
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    public boolean hasGurd() {
+        return hasGurd;
+    }
+
+    public void shot (){
+        hasGurd = false;
+    }
+
+    public boolean canReq() {
+        return numberOfReqs < 2;
     }
 }

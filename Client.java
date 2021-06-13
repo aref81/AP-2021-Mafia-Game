@@ -3,6 +3,8 @@ package com.company;
 import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -53,7 +55,10 @@ public class Client {
                 System.out.print(command.substring(1));
             }
             else if (command.equals("chatMode")){
-                chatRoomMode(output,input,scanner);
+                chatRoomMode(output,input);
+            }
+            else if (command.equals("quit")){
+                quit(output);
             }
             else if (command.charAt(0) == '1') {
                 System.out.print(command.substring(1));
@@ -70,14 +75,14 @@ public class Client {
 
     }
 
-    private static void chatRoomMode (ObjectOutputStream output,ObjectInputStream input,Scanner scanner){
+    private static void chatRoomMode (ObjectOutputStream output,ObjectInputStream input) throws IOException {
         System.out.println("***CHAT ROOM***");
         ExecutorService pool = Executors.newCachedThreadPool();
         ReaderThread readerThread = new ReaderThread(input);
-        WriterThread writerThread = new WriterThread(output,scanner,readerThread);
+        WriterThread writerThread = new WriterThread(output,readerThread);
         pool.execute(readerThread);
         pool.execute(writerThread);
-        while (!writerThread.isEnd()){
+        while (!readerThread.isEnded()){
             try {
                 Thread.sleep(1000);
             }
@@ -85,10 +90,52 @@ public class Client {
                 e.printStackTrace();
             }
         }
+        readerThread.interrupt();
+    }
+    private static void quit (ObjectOutputStream output) throws IOException, InterruptedException {
+        Thread t = new quit(output);
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if (t.isAlive())
+                System.out.println("Time's Up\nQuiting!\n");
+                try {
+                    output.writeObject(1);
+                    t.interrupt();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        },10 * 1000);
+        while (t.isAlive()){
+            Thread.sleep(1000);
+        }
     }
 }
 
-class ReaderThread implements Runnable{
+class quit extends Thread {
+    ObjectOutputStream output;
+    Scanner scanner;
+
+    public quit(ObjectOutputStream output) {
+        this.output = output;
+        scanner = new Scanner(System.in);
+    }
+
+    @Override
+    public void run() {
+        System.out.println("1Do you want to:\n(1) quit\nor\n(2)continue watching the game?(you are unable to talk to alive people)\nyou have 10 seconds to answer");
+        try {
+            output.writeObject(scanner.nextInt());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+
+class ReaderThread extends Thread{
     private ObjectInputStream input;
     private boolean ended;
 
@@ -103,11 +150,11 @@ class ReaderThread implements Runnable{
             String message = (String) input.readObject();
 
             while (!(message.equals("exitchatMode"))){
-                System.out.println(message);
+                System.out.println("\033[1A\033[" + "\r" + message);
                 message = (String) input.readObject();
             }
 
-            System.out.println("\rChat time is over!\nPlease press \"Enter\" to Continue\n");
+            System.out.println("\rChat time is over!\n");
             ended = true;
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
@@ -119,15 +166,15 @@ class ReaderThread implements Runnable{
     }
 }
 
-class WriterThread implements Runnable{
+class WriterThread extends Thread{
     private ObjectOutputStream output;
     private Scanner scanner;
     private ReaderThread readerThread;
     private boolean end;
 
-    public WriterThread(ObjectOutputStream output,Scanner scanner,ReaderThread readerThread) {
+    public WriterThread(ObjectOutputStream output,ReaderThread readerThread) {
         this.output = output;
-        this.scanner = scanner;
+        scanner = new Scanner(System.in);
         this.readerThread = readerThread;
         end = false;
     }

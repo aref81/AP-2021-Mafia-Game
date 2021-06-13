@@ -1,20 +1,17 @@
 package com.company;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class PoolClient implements Runnable{
     PoolService poolService;
     Role role;
-    CopyOnWriteArrayList<Role> roles;
+    ArrayList<Role> roles;
 
-    public PoolClient(PoolService poolService, Role role, CopyOnWriteArrayList<Role> roles) {
+    public PoolClient(PoolService poolService, Role role, ArrayList<Role> roles) {
         this.poolService = poolService;
         this.role = role;
-        this.roles = new CopyOnWriteArrayList<Role>();
+        this.roles = new ArrayList<Role>();
         this.roles.addAll(roles);
         this.roles.remove(role);
     }
@@ -28,11 +25,6 @@ public class PoolClient implements Runnable{
         output += "Please enter number of your vote(or don't enter anything if you don't want to vote):\n";
         try {
             role.getOutput().writeObject(output);
-        }
-        catch (IOException e){
-            e.printStackTrace();
-        }
-        try {
             String str = (String) role.getInput().readObject();
             if(!poolService.isEnded){
                 poolService.catchVote(roles.get(Integer.parseInt(str) - 1));
