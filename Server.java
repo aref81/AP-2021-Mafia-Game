@@ -3,6 +3,9 @@ package com.company;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
+import java.util.InputMismatchException;
+import java.util.Scanner;
 
 /**
  * implements the main server of game
@@ -22,25 +25,44 @@ public class Server {
      * @throws InterruptedException prints trace to find the problem
      */
     public static void main(String[] args) throws IOException, InterruptedException {
-        ServerSocket socket = new ServerSocket(8585);
-        ClientsHandler clients = new ClientsHandler(10);
+        Scanner scanner= new Scanner(System.in);
+        boolean loop = true;
+        int num = 0;
+        ServerSocket socket = null;
+        while (loop) {
+            try {
+                System.out.println("Please Enter intended port  :");
+                String port = scanner.nextLine();
+                System.out.println("Please Enter number of players (at least 8):");
+                num = scanner.nextInt();
+                if (num < 8){
+                    throw new IOException();
+                }
+                socket = new ServerSocket(Integer.parseInt(port));
+                loop = false;
+            } catch (SocketException e) {
+                Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+                System.err.println("\nPort Unreachable!\nPlease try again.");
+                scanner.nextLine();
+            } catch (NumberFormatException | InputMismatchException e){
+                Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+                System.err.println("\nInvalid Format Entered!\nenter in an integer number format");
+                scanner.nextLine();
+            }
+            catch (IOException e){
+                System.err.println("number of players lower than expected!");
+                scanner.nextLine();
+            }
+        }
+        ClientsHandler clients = new ClientsHandler(num);
 
-        for (Roles roleName : clients.getRolesNames() ) {
+        System.out.println("waiting for clients.");
+        for (int i = 0 ; i < num; i++) {
             Socket client = socket.accept();
+            System.out.println("Client number "+ (i+1) +" accepted!");
             clients.add(client);
         }
-//        Thread.sleep(60*1000);
-//        if (clients.getGameState()){
-//            while (clients.getGameState()) {
-//                Thread.sleep(1000 * 60);
-//            }
-//        }
-//        else {
-//            System.err.println("Game didn't start after 60 secs\n\nServer is Shutting Down!");
-//        }
-
-        while (true){
-            Thread.sleep(60000);
-        }
+        socket.close();
+        System.out.println("game finished closing server!");
     }
 }

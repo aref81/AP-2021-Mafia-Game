@@ -15,7 +15,7 @@ import java.util.ArrayList;
  *
  *
  */
-public class God implements Runnable{
+public class God implements Runnable {
     private ArrayList<Role> roles;
     private ArrayList<MafiaRole> mafias;
     private ArrayList<CitizenRole> citizens;
@@ -47,33 +47,33 @@ public class God implements Runnable{
      */
     public God(ArrayList<Role> roles) {
         this.roles = roles;
-        mafias = new ArrayList<>(2);
+        mafias = new ArrayList<>();
         normalMafias = new ArrayList<>();
 
-        for (Role role : roles){
-            if (role instanceof MafiaRole){
+        for (Role role : roles) {
+            if (role instanceof MafiaRole) {
                 mafias.add((MafiaRole) role);
             }
             Roles roleName = role.getRole();
-            switch (roleName){
+            switch (roleName) {
                 case MAFIA -> normalMafias.add((Mafia) role);
                 case DRLECTERE -> drLecter = (DrLecter) role;
                 case GODFATHER -> godFather = (GodFather) role;
             }
         }
 
-        citizens = new ArrayList<>(6);
+        citizens = new ArrayList<>();
         normalCitizens = new ArrayList<>();
 
-        for (Role role : roles){
-            if (role instanceof CitizenRole){
+        for (Role role : roles) {
+            if (role instanceof CitizenRole) {
                 citizens.add((CitizenRole) role);
             }
             Roles roleName = role.getRole();
-            switch (roleName){
+            switch (roleName) {
                 case MAYOR -> mayor = (Mayor) role;
                 case DOCTOR -> doctor = (Doctor) role;
-                case CITIZEN -> citizens.add((CitizenRole) role);
+                case CITIZEN -> normalCitizens.add((Citizen) role);
                 case DETECTORE -> detector = (Detector) role;
                 case TOUGHLIFE -> toughLife = (ToughLife) role;
                 case PROFESSIONAL -> professional = (Professional) role;
@@ -95,12 +95,11 @@ public class God implements Runnable{
      * starts a game
      */
     @Override
-    public void run (){
+    public void run() {
         try {
             firstNight();
             gameLoop();
-        }
-        catch (InterruptedException | IOException e){
+        } catch (InterruptedException | IOException e) {
             e.printStackTrace();
         }
     }
@@ -109,11 +108,11 @@ public class God implements Runnable{
      * performs the first night
      *
      * @throws InterruptedException prints trace to find the problem
-     * @throws IOException prints trace to find the problem
+     * @throws IOException          prints trace to find the problem
      */
-    private void firstNight () throws InterruptedException, IOException {
+    private void firstNight() throws InterruptedException, IOException {
         boolean start = false;
-        while (!start){
+        while (!start) {
             for (Role role : roles) {
                 System.err.print("");
                 start = role.isReady();
@@ -122,7 +121,7 @@ public class God implements Runnable{
                 }
             }
         }
-        for (Role role : roles){
+        for (Role role : roles) {
             role.getOutput().writeObject("0\nFirst Night Begins!\n");
         }
         for (Role role : mafias) {
@@ -153,10 +152,10 @@ public class God implements Runnable{
     /**
      * executes the gameloop
      *
-     * @throws IOException prints trace to find the problem
+     * @throws IOException          prints trace to find the problem
      * @throws InterruptedException prints trace to find the problem
      */
-    private void gameLoop () throws IOException, InterruptedException {
+    private void gameLoop() throws IOException, InterruptedException {
         boolean loop = true;
         SecureRandom random = new SecureRandom();
         while (loop) {
@@ -186,30 +185,28 @@ public class God implements Runnable{
                     sendToAll("0Last night Professional shot : " + proShot.getName() + "\n");
                     removeRole(proShot);
                 }
-                if (req){
+                if (req) {
                     if (!deadRoles.isEmpty()) {
                         StringBuilder output = new StringBuilder("0Request for dead roles received\ndead roles :\n");
                         randomizer(random, deadRoles);
                         for (int i = 1; i <= deadRoles.size(); i++) {
-                            output.append(i).append("-").append(deadRoles.get(i - 1).getName()).append("\n");
+                            output.append(i).append("-").append(deadRoles.get(i - 1).getRole()).append("\n");
                         }
                         output.append("\n");
 
                         sendToAll(output.toString());
-                    }
-                    else {
+                    } else {
                         sendToAll("0Request for dead roles received\nNo dead roles yet!\n");
                     }
                     req = false;
                 }
 
-                if (muted != null){
+                if (muted != null) {
                     sendToAll("0Psychologist has muted " + muted.getName() + "\n");
                     if ((muted != shot) && (muted != proShot)) {
                         watchers.add(muted);
                         roles.remove(muted);
-                    }
-                    else {
+                    } else {
                         muted = null;
                         sendToAll("0But this role is dead!\n");
                     }
@@ -218,13 +215,13 @@ public class God implements Runnable{
                 proShot = null;
 
                 loop = checkEndGame();
-                if (!loop){
+                if (!loop) {
                     break;
                 }
 
-                ChatServer chatServer = new ChatServer(roles,watchers,6,this);
+                ChatServer chatServer = new ChatServer(roles, watchers, 6, this);
                 chatServer.startChat();
-                PoolService poolService = new PoolService(roles,watchers);
+                PoolService poolService = new PoolService(roles, watchers);
                 Role mayrem = poolService.StartPool();
                 if (mayrem != null) {
                     if (mayor != null) {
@@ -249,9 +246,9 @@ public class God implements Runnable{
                 sendToAll("0Mafia Group Wakes Up.\n");
                 ArrayList<Role> mafiaChat = new ArrayList<>(mafias.size());
                 mafiaChat.addAll(mafias);
-                ChatServer chatServer = new ChatServer(mafiaChat,watchers,3,this);
+                ChatServer chatServer = new ChatServer(mafiaChat, watchers, 3, this);
                 chatServer.startChat();
-                PoolService poolService = new PoolService(citizens,mafias,watchers);
+                PoolService poolService = new PoolService(citizens, mafias, watchers);
                 shot = poolService.StartPool();
 
                 if (godFather != null) {
@@ -263,8 +260,7 @@ public class God implements Runnable{
                     for (Role role : mafias) {
                         role.getOutput().writeObject("0GodFather shot " + shot.getName() + "\n");
                     }
-                }
-                else {
+                } else {
                     for (Role role : mafias) {
                         role.getOutput().writeObject("0Pool Finished!\nnow Mafia take the shot!\n");
                     }
@@ -277,18 +273,16 @@ public class God implements Runnable{
 
                 if (drLecter != null) {
                     savedMafia = drLecter.save(mafias);
-                }
-                else {
+                } else {
                     Thread.sleep(random.nextInt(5000));
                 }
                 sendToAll("0DrLecter Sleeps.\n");
 
                 Role savedRole = null;
                 sendToAll("0Doctor Wakes Up!\n");
-                if (drLecter != null) {
+                if (doctor != null) {
                     savedRole = doctor.save(roles);
-                }
-                else {
+                } else {
                     Thread.sleep(random.nextInt(5000));
                 }
                 sendToAll("0Doctor Sleeps.\n");
@@ -296,8 +290,7 @@ public class God implements Runnable{
                 sendToAll("0Detector Wakes Up!\n");
                 if (detector != null) {
                     detector.investigate(roles);
-                }
-                else {
+                } else {
                     Thread.sleep(random.nextInt(5000));
                 }
                 sendToAll("0Detector Sleeps.\n");
@@ -305,8 +298,7 @@ public class God implements Runnable{
                 sendToAll("0Professional Wakes Up!\n");
                 if (professional != null) {
                     proShot = professional.Shoot(roles);
-                }
-                else {
+                } else {
                     Thread.sleep(random.nextInt(5000));
                 }
                 sendToAll("0Professional Sleeps.\n");
@@ -314,8 +306,7 @@ public class God implements Runnable{
                 sendToAll("0Psychologist Wakes Up!\n");
                 if (psychologist != null) {
                     muted = psychologist.mute(roles);
-                }
-                else {
+                } else {
                     Thread.sleep(random.nextInt(5000));
                 }
                 sendToAll("0Psychologist Sleeps.\n");
@@ -355,7 +346,7 @@ public class God implements Runnable{
      *
      * @param removedRole the removing role
      */
-    public synchronized void removeRole(Role removedRole){
+    public synchronized void removeRole(Role removedRole) {
         deadRoles.add(removedRole);
         if (removedRole instanceof CitizenRole) {
             citizens.remove(removedRole);
@@ -369,8 +360,7 @@ public class God implements Runnable{
                 case PROFESSIONAL -> professional = null;
                 case PSYCHOLOGIST -> psychologist = null;
             }
-        }
-        else if (removedRole instanceof MafiaRole) {
+        } else if (removedRole instanceof MafiaRole) {
             mafias.remove(removedRole);
             Roles roleName = removedRole.getRole();
             switch (roleName) {
@@ -379,7 +369,7 @@ public class God implements Runnable{
                 case GODFATHER -> godFather = null;
             }
         }
-        if (removedRole.die()){
+        if (removedRole.die()) {
             watchers.add(removedRole);
         }
         voted = removedRole;
@@ -392,18 +382,16 @@ public class God implements Runnable{
      * @return true if finished,false if not
      * @throws IOException prints trace to find the problem
      */
-    private boolean checkEndGame () throws IOException {
-         if (mafias.size() == 0){
-             endGame("City");
-             return false;
-         }
-         else if (citizens.size() <= mafias.size()){
-             endGame("Mafia");
-             return false;
-         }
-         else {
-             return true;
-         }
+    private boolean checkEndGame() throws IOException {
+        if (mafias.size() == 0) {
+            endGame("City");
+            return false;
+        } else if (citizens.size() <= mafias.size()) {
+            endGame("Mafia");
+            return false;
+        } else {
+            return true;
+        }
     }
 
     /**
@@ -411,10 +399,10 @@ public class God implements Runnable{
      *
      * @param name the name of role
      */
-    public synchronized void removeRole(String name){
+    public synchronized void removeRole(String name) {
         Role removedRole = null;
-        for (Role tempRole : roles){
-            if (tempRole.getName().equals(name)){
+        for (Role tempRole : roles) {
+            if (tempRole.getName().equals(name)) {
                 removedRole = tempRole;
                 break;
             }
@@ -428,30 +416,31 @@ public class God implements Runnable{
      * @param winners the winner group
      * @throws IOException prints trace to find the problem
      */
-    private void endGame (String winners) throws IOException {
-        sendToAll("0" + winners);
+    private void endGame(String winners) throws IOException {
+        sendToAll("0" + winners + " Won !\n");
+        sendToAll("exit");
     }
 
     /**
      * randomizes a collection of roles
      *
-     * @param random the random class object
+     * @param random        the random class object
      * @param roleArrayList the collection
      */
-    private void randomizer (SecureRandom random,ArrayList<Role> roleArrayList){
-        for (int i = 0 ; i < roleArrayList.size() ; i++){
-            roleArrayList.add(getRandomRole(random,roleArrayList));
+    private void randomizer(SecureRandom random, ArrayList<Role> roleArrayList) {
+        for (int i = 0; i < roleArrayList.size(); i++) {
+            roleArrayList.add(getRandomRole(random, roleArrayList));
         }
     }
 
     /**
      * returns a random role from a collection
      *
-     * @param random thr random classs object
+     * @param random        thr random classs object
      * @param roleArrayList the collection
      * @return the random role
      */
-    private Role getRandomRole(SecureRandom random,ArrayList<Role> roleArrayList){
+    private Role getRandomRole(SecureRandom random, ArrayList<Role> roleArrayList) {
         int index = random.nextInt(roleArrayList.size());
         Role tempRole = roleArrayList.get(index);
         roleArrayList.remove(tempRole);
@@ -464,7 +453,7 @@ public class God implements Runnable{
      * @param message the message
      * @throws IOException prints trace to find the problem
      */
-    private void sendToAll (String message) throws IOException {
+    private void sendToAll(String message) throws IOException {
         for (Role role : roles) {
             role.getOutput().writeObject(message);
         }
@@ -478,7 +467,7 @@ public class God implements Runnable{
      *
      * @param role the watcher
      */
-    public void removeWatcher (Role role){
+    public void removeWatcher(Role role) {
         watchers.remove(role);
     }
 }

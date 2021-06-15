@@ -1,4 +1,6 @@
 package com.company;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -19,6 +21,7 @@ public class ClientsHandler {
     private ExecutorService pool;
     private int playersNum;
     private CopyOnWriteArrayList<Roles> rolesNames;
+    private God god;
 
     /**
      * initializes a client Handler
@@ -82,7 +85,7 @@ public class ClientsHandler {
      *
      * @param client the new client
      */
-    public void add(Socket client) {
+    public synchronized void add(Socket client) {
         Roles roleName = rolesNames.get(0);
         rolesNames.remove(roleName);
         switch (roleName){
@@ -100,39 +103,6 @@ public class ClientsHandler {
         pool.execute(roles.get(roles.size()-1));
     }
 
-//    public void remove(Role role){
-//        roles.remove(role);
-//        if (role instanceof Mafia){
-//            rolesNames.add(Roles.MAFIA);
-//        }
-//        else  if (role instanceof Citizen){
-//            rolesNames.add(Roles.CITIZEN);
-//        }
-//        else  if (role instanceof Detector){
-//            rolesNames.add(Roles.DETECTORE);
-//        }
-//        else  if (role instanceof Doctor){
-//            rolesNames.add(Roles.DOCTOR);
-//        }
-//        else  if (role instanceof DrLecter){
-//            rolesNames.add(Roles.DRLECTERE);
-//        }
-//        else  if (role instanceof GodFather){
-//            rolesNames.add(Roles.GODFATHER);
-//        }
-//        else  if (role instanceof Mayor){
-//            rolesNames.add(Roles.MAYOR);
-//        }
-//        else  if (role instanceof Professional){
-//            rolesNames.add(Roles.PROFESSIONAL);
-//        }
-//        else  if (role instanceof Psychologist){
-//            rolesNames.add(Roles.PSYCHOLOGIST);
-//        }
-//        else  if (role instanceof ToughLife){
-//            rolesNames.add(Roles.TOUGHLIFE);
-//        }
-//    }
 
     /**
      * returns the collection of roles for the game
@@ -150,5 +120,14 @@ public class ClientsHandler {
     private void startGame (){
         God god = new God(roles);
         pool.execute(god);
+    }
+
+    /**
+     * the status of a started game
+     *
+     * @return true if runnig , false if finished
+     */
+    public boolean isFinished(){
+        return pool.isTerminated();
     }
 }

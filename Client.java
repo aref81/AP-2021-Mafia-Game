@@ -58,8 +58,6 @@ public class Client {
             }
         }while (loop);
 
-        socket = new Socket("127.0.0.1", 8585);
-
         ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
         ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
 

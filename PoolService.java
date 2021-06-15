@@ -134,17 +134,16 @@ public class PoolService {
      * @return the vote result (null if exits equal)
      */
     private Role checkPool (){
-        if (checkEqual()) {
             Role removedRole = choices.get(0);
             for (Role role : choices) {
                 if (pools.get(role).size() > pools.get(removedRole).size()) {
                     removedRole = role;
                 }
             }
-            return removedRole;
-        }
-
-        else return null;
+            if (checkEqual(removedRole)) {
+                return removedRole;
+            }
+            else return null;
     }
 
     /**
@@ -152,8 +151,7 @@ public class PoolService {
      *
      * @return false if yes,true if no
      */
-    private boolean checkEqual (){
-        for (Role role : choices){
+    private boolean checkEqual (Role role){
             for (Role tempRole : choices){
                 if (role == tempRole){
                     continue;
@@ -164,7 +162,6 @@ public class PoolService {
                     }
                 }
             }
-        }
         return true;
     }
 }

@@ -29,7 +29,7 @@ public class PoolClient implements Runnable{
     public PoolClient(PoolService poolService, Role role, ArrayList<Role> roles) {
         this.poolService = poolService;
         this.role = role;
-        this.roles = new ArrayList<Role>();
+        this.roles = new ArrayList<>();
         this.roles.addAll(roles);
         this.roles.remove(role);
     }
