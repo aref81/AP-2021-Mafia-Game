@@ -1,7 +1,6 @@
 package com.company;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
@@ -19,7 +18,6 @@ public class ToughLife extends CitizenRole{
     public void run() {
         super.run();
         ObjectOutputStream output = super.getOutput();
-        ObjectInputStream input = super.getInput();
 
         try {
             output.writeObject("0\n YOU ARE TOUGH LIFE!\n");
@@ -32,7 +30,7 @@ public class ToughLife extends CitizenRole{
     public boolean deadRolesRequest (){
         int choice = 0;
         try {
-            super.getOutput().writeObject("1Do you want to request?\n1.yes 2.no\n");
+            super.getOutput().writeObject("302Do you want to request?\n1.yes 2.no\n");
             choice = Integer.parseInt((String) super.getInput().readObject());
         }
         catch (IOException | ClassNotFoundException e){

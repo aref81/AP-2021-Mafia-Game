@@ -1,22 +1,37 @@
 package com.company;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 
+/**
+ * implements a detector role in game
+ * extends Citizen roles,contains actions of detector role
+ *
+ * @author Mohammad Hosein Aref
+ * @version 1.0
+ *
+ */
 public class Detector extends CitizenRole{
-
+    /**
+     * initializes a detector
+     *
+     * @param socket the socket to client
+     * @param clientsHandler clientHandler which contains methods to control clients
+     * @param role the role of object in the game
+     */
     public Detector(Socket socket,ClientsHandler clientsHandler,Roles role){
         super(socket,clientsHandler,role);
     }
-
+    /**
+     * sets this role ready for play
+     *
+     */
     @Override
     public void run() {
         super.run();
         ObjectOutputStream output = super.getOutput();
-        ObjectInputStream input = super.getInput();
 
         try {
             output.writeObject("0\n YOU ARE DETECTOR!\n");
@@ -26,11 +41,16 @@ public class Detector extends CitizenRole{
         }
     }
 
+    /**
+     * performs the action of detector
+     *
+     * @param roles roles in the game
+     */
     public void investigate (ArrayList<Role> roles){
         int choice = -1;
         while (choice == -1) {
             try {
-                String output = "1";
+                String output = "3" + (roles.size()>9?"":"0") + roles.size();
                 for (int i = 1; i < roles.size(); i++) {
                     output += i + "-" + roles.get(i - 1).getName() + "\n";
                 }

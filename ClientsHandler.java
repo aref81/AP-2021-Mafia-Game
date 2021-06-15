@@ -5,6 +5,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * make clients ready for game
+ * and contain methods to control them
+ *
+ * @author Mohammad Hosein Aref
+ * @version 1.0
+ *
+ */
 public class ClientsHandler {
     private ArrayList<Role> roles;
     private boolean gameState;
@@ -12,6 +20,11 @@ public class ClientsHandler {
     private int playersNum;
     private CopyOnWriteArrayList<Roles> rolesNames;
 
+    /**
+     * initializes a client Handler
+     *
+     * @param playersNum number of players
+     */
     public ClientsHandler(int playersNum) {
         this.roles = new ArrayList<Role>(playersNum);
         this.rolesNames = Roles.randomize(playersNum);
@@ -20,6 +33,12 @@ public class ClientsHandler {
         this.playersNum = playersNum;
     }
 
+    /**
+     * checks if the name exists or not
+     *
+     * @param name the name
+     * @return true if exist,false if don't
+     */
     protected boolean checkName(String name){
         for (Role tmpRole : roles){
             if (tmpRole.getName() == null){
@@ -32,6 +51,11 @@ public class ClientsHandler {
         return false;
     }
 
+    /**
+     * checks and returns the status of game
+     *
+     * @return true if its running,false if it isn't
+     */
     public synchronized boolean getGameState() {
         if (!gameState) {
             if (!(playersNum > roles.size())) {
@@ -52,6 +76,12 @@ public class ClientsHandler {
         return gameState;
     }
 
+    /**
+     * adds a new socket to the game
+     * with a role
+     *
+     * @param client the new client
+     */
     public void add(Socket client) {
         Roles roleName = rolesNames.get(0);
         rolesNames.remove(roleName);
@@ -104,10 +134,19 @@ public class ClientsHandler {
 //        }
 //    }
 
+    /**
+     * returns the collection of roles for the game
+     *
+     * @return the collection of roles
+     */
     public CopyOnWriteArrayList<Roles> getRolesNames() {
         return rolesNames;
     }
 
+    /**
+     * starts a game
+     *
+     */
     private void startGame (){
         God god = new God(roles);
         pool.execute(god);

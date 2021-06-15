@@ -3,6 +3,16 @@ package com.company;
 import java.io.*;
 import java.net.Socket;
 
+/**
+ * implements a Role in game
+ * contains methods and info for
+ * a single role
+ * extends Runnable for Multi-Threading
+ *
+ * @author Mohammad Hosein Aref
+ * @version 1.0
+ *
+ */
 public abstract class Role implements Runnable {
     private boolean alive;
     private String name;
@@ -13,6 +23,13 @@ public abstract class Role implements Runnable {
     private ClientsHandler clientsHandler;
     private boolean ready;
 
+    /**
+     * initializes a Role
+     *
+     * @param socket the socket to client
+     * @param clientsHandler clientHandler which contains methods to control clients
+     * @param role the role of object in the game
+     */
     public Role (Socket socket,ClientsHandler clientsHandler,Roles role) {
         alive = false;
         this.socket = socket;
@@ -21,10 +38,20 @@ public abstract class Role implements Runnable {
         ready = false;
     }
 
+    /**
+     * returns the name of client
+     *
+     * @return name of client
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * makes object ready to start the game
+     * sets the name,..
+     *
+     */
     @Override
     public void run(){
         try {
@@ -97,51 +124,104 @@ public abstract class Role implements Runnable {
         }
     }
 
-
+    /**
+     * returns the status of a Role in game
+     *
+     * @return true if alive,false if dead
+     */
     public boolean isAlive() {
         return alive;
     }
 
+    /**
+     * returns the output of client
+     *
+     * @return output of client
+     */
     public ObjectOutputStream getOutput() {
         return output;
     }
 
+    /**
+     * returns the input of client
+     *
+     * @return input of client
+     */
     public ObjectInputStream getInput() {
         return input;
     }
 
+    /**
+     * returns the role of client
+     *
+     * @return the role of client
+     */
     public Roles getRole() {
         return role;
     }
 
+    /**
+     * returns the status of role
+     *
+     * @return true if its ready for next task,false if its not ready
+     */
     public boolean isReady() {
         return ready;
     }
 
+    /**
+     * changes the status of role
+     *
+     * @param ready the new status
+     */
     protected void setReady(boolean ready) {
         this.ready = ready;
     }
 
+    /**
+     * creates a member for chat with information of this role
+     *
+     * @param server the server of chat
+     * @return the chat member object
+     */
     public ChatUser chatUserMaker(ChatServer server){
         return new ChatUser(server,input,output,name);
     }
 
+    /**
+     * performs the action of dying for role
+     *
+     * indicates if client wants to be a watcher or not
+     *
+     * @return true if watcher,false if don't
+     */
     public boolean die(){
         try {
             alive = false;
-            output.writeObject("1Do you want to:\n(1) quit\nor\n(2)continue watching the game?(you ar unable to talk to alive people)\n");
-            int choice = input.readInt();
-            if (choice == 1) {
-                output.writeObject("exit");
-                socket.close();
-                return false;
-            } else {
-                return true;
+            if (connected()) {
+                output.writeObject("quit");
+                int choice = Integer.parseInt((String) input.readObject());
+                if (choice == 1) {
+                    output.writeObject("exit");
+                    socket.close();
+                    return false;
+                } else {
+                    return true;
+                }
             }
         }
-        catch (IOException e){
+        catch (IOException | ClassNotFoundException e){
             e.printStackTrace();
         }
         return false;
+    }
+
+    /**
+     * checks if its connected to the socket or not
+     *
+     * @return true if it is, false if its not
+     */
+    private boolean connected () {
+        return !socket.isClosed();
     }
 }
